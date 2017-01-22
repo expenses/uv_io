@@ -8,15 +8,17 @@ import os
 bl_info = {
     "name": "UV IO",
     "author": "Expenses",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "category": "UV",
     "description": "Saving and loading UVs to a .json file"
 }
 
 
-def get_image_size():
-    if bpy.data.images:
-        return bpy.data.images[0].size
+def get_image_size(obj):
+    bpy.ops.object.mode_set(mode='OBJECT')
+    image = obj.data.uv_textures.active.data[0].image
+    if image is not None:
+        return image.size
     else:
         return (1024, 1024)
 
@@ -46,7 +48,7 @@ class LoadUV(bpy.types.Operator, ImportHelper):
             self.report({'ERROR'}, "Object type is not mesh.")
             return {'CANCELLED'}
 
-        width, height = get_image_size()
+        width, height = get_image_size(obj)
 
         bpy.ops.object.mode_set(mode='EDIT')
         mesh = bmesh.from_edit_mesh(obj.data)
@@ -76,7 +78,7 @@ class SaveUV(bpy.types.Operator, ExportHelper):
             self.report({'ERROR'}, "Object type is not mesh.")
             return {'CANCELLED'}
 
-        width, height = get_image_size()
+        width, height = get_image_size(obj)
 
         bpy.ops.object.mode_set(mode='EDIT')
         mesh = bmesh.from_edit_mesh(obj.data)
